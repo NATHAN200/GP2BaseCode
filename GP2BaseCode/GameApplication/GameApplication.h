@@ -49,7 +49,6 @@ private:
 	bool initGraphics();
 	bool initPhysics();
 
-
 	bool initWindow();
 private:
 	IWindow * m_pWindow;
@@ -57,4 +56,3 @@ private:
 	GameOptionsDesc m_GameOptionDesc;
 	wstring m_ConfigFileName;
 };
-

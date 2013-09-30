@@ -71,6 +71,7 @@ bool CGameApplication::initPhysics()
 }
 
 
+//initGraphics - initialise the graphics subsystem
 bool CGameApplication::initGraphics()
 {
 	//check our settings first, to see what graphics mode we are in
@@ -78,10 +79,8 @@ bool CGameApplication::initGraphics()
 	if (!m_pRenderer->init(m_pWindow->getHandleToWindow(),m_GameOptionDesc.fullscreen))
 		return false;
 
-
 	return true;
 }
-
 
 //initWindow - initialise the window
 bool CGameApplication::initWindow()

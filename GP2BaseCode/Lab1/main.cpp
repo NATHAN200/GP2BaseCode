@@ -5,10 +5,7 @@
 #include <Windows.h>
 #endif
 
-
 #include "../GameApplication/GameApplication.h"
-
-
 
 
 //Check to see if we are on windows
@@ -40,3 +37,4 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
+

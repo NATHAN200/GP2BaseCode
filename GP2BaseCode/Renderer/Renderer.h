@@ -1,6 +1,4 @@
-//header guard, so this is only compiled once
 #pragma once
-
 
 class IRenderer
 {
@@ -14,4 +12,3 @@ public:
 	//virtual function, can be overridden
 	virtual void present()=0;
 };
-

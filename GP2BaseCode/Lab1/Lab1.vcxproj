@@ -77,8 +77,14 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\D3D10Renderer\D3D10Renderer.vcxproj">
+      <Project>{04ac46b9-7c7c-4c8f-9a28-11e3b31a7a22}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\GameApplication\GameApplication.vcxproj">
       <Project>{dc8217ce-63c7-48b9-97cf-0b6f353648c3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Window\Window.vcxproj">
+      <Project>{db0e915c-43b1-49a3-a126-3551bf087ffe}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

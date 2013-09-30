@@ -1,11 +1,8 @@
-//header guard, so this is only compiled once
 #pragma once
-
 
 //The header file for the renderer interface
 #include "../Renderer/Renderer.h"
 #include <Windows.h>
-
 
 //forward declarations of the D3D10 interfaces
 struct ID3D10Device;
@@ -14,14 +11,11 @@ struct ID3D10RenderTargetView;
 struct ID3D10DepthStencilView;
 struct ID3D10Texture2D;
 
-
 //D3D10Renderer implements the Renderer interface
 class D3D10Renderer:public IRenderer
 {
 public:
-	//Constructor
 	D3D10Renderer();
-	//Deconstructor
 	~D3D10Renderer();
 	//notice these have the same signature as the pure methods
 	//in the interface
@@ -40,4 +34,3 @@ private:
 	ID3D10DepthStencilView * m_pDepthStencelView;
 	ID3D10Texture2D *m_pDepthStencilTexture;
 };
-
