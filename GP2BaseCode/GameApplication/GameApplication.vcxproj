@@ -75,12 +75,12 @@
     <ClCompile Include="GameApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameApplication.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Window\Window.vcxproj">
       <Project>{db0e915c-43b1-49a3-a126-3551bf087ffe}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="GameApplication.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
