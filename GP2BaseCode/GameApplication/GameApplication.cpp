@@ -2,6 +2,7 @@
 
 //should rellly check to see if we are on a windows platform
 #include "../Window/Win32Window.h"
+#include "../D3D10Renderer/D3D10Renderer.h"
 
 //Constructor
 CGameApplication::CGameApplication(void)
@@ -65,13 +66,19 @@ bool CGameApplication::initInput()
 //initPhysics - Initialises the physics system
 bool CGameApplication::initPhysics()
 {
+
 	return true;
 }
 
 
-//initGraphics - initialise the graphics subsystem
 bool CGameApplication::initGraphics()
 {
+	//check our settings first, to see what graphics mode we are in
+	m_pRenderer=new D3D10Renderer();
+	if (!m_pRenderer->init(m_pWindow->getHandleToWindow(),m_GameOptionDesc.fullscreen))
+		return false;
+
+
 	return true;
 }
 
@@ -84,6 +91,7 @@ bool CGameApplication::initWindow()
 	m_pWindow->init(m_GameOptionDesc.gameName,m_GameOptionDesc.width,m_GameOptionDesc.height,m_GameOptionDesc.fullscreen);
 	return true;
 }
+
 
 
 //called to init the game
@@ -114,7 +122,9 @@ void CGameApplication::run()
 //Render, called to draw one frame of the game
 void CGameApplication::render()
 {
+	m_pRenderer->clear(1.0f,0.0f,0.0f,10.0f);
 
+	m_pRenderer->present();
 
 }
 
