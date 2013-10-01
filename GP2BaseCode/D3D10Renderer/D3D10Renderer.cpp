@@ -5,6 +5,24 @@
 #include <D3DX10.h>
 
 struct Vertex{float x,y,z;};
+const char basicEffect[]=\
+	"float4 VS( float4 Pos : POSITION ) : SV_POSITIOON"\
+	"{"\
+	"	Return Pos;"\
+	"}"\
+	"float4 PS( float4 Pos : SV_POSITION ) : SV_Target"\
+	"{"\
+	"	return float4( 1.0f,1.0f,0.0f,1.0f);"\
+	"}"\
+	"technique10 Render"\
+	"{"\
+	"	pass P0"\
+	"	{"\
+	"		SetVertexShader(CompileShader( vs_4_0, VS() ) );"\
+	"		SetGeometryShader( NULL );"\
+	"		SetPixelShader( CompileShader( ps_4_0, PS() ) ) ;"\
+	"	}"\
+	"}";
 
 
 //Constructor
@@ -225,4 +243,9 @@ bool D3D10Renderer::createBuffer()
 		OutputDebugStringA("Can't create buffer");
 	}
 	return true;
+}
+
+bool D3D10Renderer::loadEffectFromMemory(const char* pMem)
+{
+	
 }
