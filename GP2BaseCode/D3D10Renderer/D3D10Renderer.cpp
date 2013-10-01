@@ -6,9 +6,9 @@
 
 struct Vertex{float x,y,z;};
 const char basicEffect[]=\
-	"float4 VS( float4 Pos : POSITION ) : SV_POSITIOON"\
+	"float4 VS( float4 Pos : POSITION ) : SV_POSITION"\
 	"{"\
-	"	Return Pos;"\
+	"	return Pos;"\
 	"}"\
 	"float4 PS( float4 Pos : SV_POSITION ) : SV_Target"\
 	"{"\
@@ -82,12 +82,12 @@ bool D3D10Renderer::init(void *pWindowHandle,bool fullScreen)
 		return false;
 	if (!createInitialRenderTarget(width,height))
 		return false;
-	if (!loadEffectFromMemory(basicEffect))
-		return false;
-	if (!createBuffer())
-		return false;
-	if (!createVertexLayout())
-		return false;
+	loadEffectFromMemory(basicEffect);
+	createBuffer();
+	
+	createVertexLayout();
+	
+
 	return true;
 }
 
@@ -270,7 +270,7 @@ bool D3D10Renderer::createBuffer()
 	if (FAILED(m_pD3D10Device->CreateBuffer(&bd,&InitData,&m_pTempBuffer)))
 	{
 		OutputDebugStringA("Can't create buffer");
-		return false;
+		
 	}
 	return true;
 }
