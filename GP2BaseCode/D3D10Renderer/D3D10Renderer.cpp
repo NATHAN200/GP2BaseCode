@@ -231,7 +231,7 @@ void D3D10Renderer::present()
 
 void D3D10Renderer::render()
 {
-	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	m_pD3D10Device->IASetInputLayout(m_pTempVertexLayout);
 
 	UINT stride = sizeof( Vertex );
@@ -246,20 +246,58 @@ void D3D10Renderer::render()
 	{
 		ID3D10EffectPass *pCurrentPass=m_pTempTechnique->GetPassByIndex(i);
 		pCurrentPass->Apply(0);
-		m_pD3D10Device->Draw(3,0);
+		m_pD3D10Device->Draw(4,0);
 	}
 }
 bool D3D10Renderer::createBuffer()
 {
 	Vertex verts[]={
-	{-1.0f,-1.0f,0.0f},
-	{0.0f,1.0f,0.0f},
-	{1.0f,-1.0f,0.0f}
+	{-0.5f,0.5f,0.0f},
+	{0.5f,0.5f,0.0f},
+	{-0.5f,-0.5f,0.0f},
+	{0.5f,-0.5f,0.0f},
 	};
+
+	/* Hexagon, TRIANGLELIST, 18 vertex
+	Vertex verts[]={
+	{0.0f,0.0f,0.0f},
+	{0.25f,0.5f,0.0f},
+	{0.5f,0.0f,0.0f},
+	{0.0f,0.0f,0.0f},
+	{0.5f,0.0f,0.0f},
+	{0.25f,-0.5f,0.0f},
+	{0.0f,0.0f,0.0f},
+	{0.25f,-0.5f,0.0f},
+	{-0.25f,-0.5f,0.0f},
+	{0.0f,0.0f,0.0f},
+	{-0.25f,-0.5f,0.0f},
+	{-0.5f,0.0f,0.0f},
+	{0.0f,0.0f,0.0f},
+	{-0.5f,0.0f,0.0f},
+	{-0.25f,0.5f,0.0f},
+	{0.0f,0.0f,0.0f},
+	{-0.25f,0.5f,0.0f},
+	{0.25f,0.5f,0.0f}
+	};
+	*/
+	
+	/* Hexagon TRIANGLESTRIP, 9 vertex
+	Vertex verts[]={
+	{0.25f,0.5f,0.0f},
+	{0.5f,0.0f,0.0f},
+	{0.0f,0.0f,0.0f},
+	{0.25f,-0.5f,0.0f},
+	{-0.25f,-0.5f,0.0f},
+	{-0.5f,0.0f,0.0f},
+	{0.0f,0.0f,0.0f},
+	{-0.25f,0.5f,0.0f},
+	{0.25f,0.5f,0.0f},
+	};*/
+
 
 	D3D10_BUFFER_DESC bd;
 	bd.Usage = D3D10_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof( Vertex) * 3;
+	bd.ByteWidth = sizeof( Vertex) * 4;
 	bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
