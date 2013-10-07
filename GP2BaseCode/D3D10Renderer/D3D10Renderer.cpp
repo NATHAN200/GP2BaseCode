@@ -231,12 +231,14 @@ void D3D10Renderer::present()
 
 void D3D10Renderer::render()
 {
-	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	//Tells the device what primitive we are going to use
+	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	//Binds the created inputLayout to the input assembler stage
 	m_pD3D10Device->IASetInputLayout(m_pTempVertexLayout);
 
 	UINT stride = sizeof( Vertex );
 	UINT offset = 0;
-
+	//Binds the vertex buffer to the input assembler stage
 	m_pD3D10Device->IASetVertexBuffers(0,1,&m_pTempBuffer,&stride,&offset);
 
 	D3D10_TECHNIQUE_DESC techniqueDesc;
@@ -246,19 +248,22 @@ void D3D10Renderer::render()
 	{
 		ID3D10EffectPass *pCurrentPass=m_pTempTechnique->GetPassByIndex(i);
 		pCurrentPass->Apply(0);
-		m_pD3D10Device->Draw(4,0);
+		//Draws the primitives
+		m_pD3D10Device->Draw(18,0);
 	}
 }
 bool D3D10Renderer::createBuffer()
 {
+	//Square TRIANGLESTRIP, 4 vertex
+	/*
 	Vertex verts[]={
 	{-0.5f,0.5f,0.0f},
 	{0.5f,0.5f,0.0f},
 	{-0.5f,-0.5f,0.0f},
 	{0.5f,-0.5f,0.0f},
-	};
+	};*/
 
-	/* Hexagon, TRIANGLELIST, 18 vertex
+	// Hexagon, TRIANGLELIST, 18 vertex
 	Vertex verts[]={
 	{0.0f,0.0f,0.0f},
 	{0.25f,0.5f,0.0f},
@@ -277,11 +282,12 @@ bool D3D10Renderer::createBuffer()
 	{-0.25f,0.5f,0.0f},
 	{0.0f,0.0f,0.0f},
 	{-0.25f,0.5f,0.0f},
-	{0.25f,0.5f,0.0f}
+	{0.25f,0.5f,0.0f},
 	};
-	*/
 	
-	/* Hexagon TRIANGLESTRIP, 9 vertex
+	
+	// Hexagon TRIANGLESTRIP, 9 vertex
+	/*
 	Vertex verts[]={
 	{0.25f,0.5f,0.0f},
 	{0.5f,0.0f,0.0f},
@@ -297,14 +303,14 @@ bool D3D10Renderer::createBuffer()
 
 	D3D10_BUFFER_DESC bd;
 	bd.Usage = D3D10_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof( Vertex) * 4;
+	bd.ByteWidth = sizeof( Vertex) * 18;
 	bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
 
 	D3D10_SUBRESOURCE_DATA InitData;
 	InitData.pSysMem = &verts;
-
+	//Creates the vertex buffer from the vertex data
 	if (FAILED(m_pD3D10Device->CreateBuffer(&bd,&InitData,&m_pTempBuffer)))
 	{
 		OutputDebugStringA("Can't create buffer");
@@ -337,7 +343,7 @@ bool D3D10Renderer::createVertexLayout()
 	UINT numElements = sizeof( VerexLayout ) / sizeof(D3D10_INPUT_ELEMENT_DESC);
 	D3D10_PASS_DESC PassDesc;
 	m_pTempTechnique->GetPassByIndex( 0 )->GetDesc( &PassDesc );
-
+	//Creates the inputlayout object with the verexlayout description
 	if ( FAILED(m_pD3D10Device->CreateInputLayout( VerexLayout,numElements,PassDesc.pIAInputSignature,PassDesc.IAInputSignatureSize,&m_pTempVertexLayout)))
 	{
 		OutputDebugStringA("Can't create layout");
