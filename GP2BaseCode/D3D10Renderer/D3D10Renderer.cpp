@@ -86,12 +86,18 @@ bool D3D10Renderer::init(void *pWindowHandle,bool fullScreen)
 		return false;
 	if (!createInitialRenderTarget(width,height))
 		return false;
-	loadEffectFromFile("Effects/transform.fx");
+	if (!loadEffectFromFile("Effects/transform.fx"))
+		return false;
 	createBuffer();
 	
 	createVertexLayout();
 	
+	XMFLOAT3 cameraPos=XMFLOAT3(0.0f,0.0f,-10.0f);
+	XMFLOAT3 focusPos=XMFLOAT3(0.0f,0.0f,0.0f);
+	XMFLOAT3 up=XMFLOAT3(0.0f,1.0f,0.0f);
 
+	createCamera(XMLoadFloat3(&cameraPos),XMLoadFloat3(&focusPos),XMLoadFloat3(&up),XM_PI/4,(float)width/(float)height,0.1f,100.0f);
+	positionObject(1.0f,1.0f,1.0f);
 	return true;
 }
 
@@ -233,8 +239,19 @@ void D3D10Renderer::present()
     m_pSwapChain->Present( 0, 0 );
 }
 
+void D3D10Renderer::createCamera(XMVECTOR &position,XMVECTOR &focus,XMVECTOR &up,float fov, float aspectRatio,float nearClip,float farClip)
+{
+
+	m_View =XMMatrixLookAtLH(position,focus,up);
+	m_Projection = XMMatrixPerspectiveFovLH(fov,aspectRatio,nearClip,farClip);
+}
+
+
 void D3D10Renderer::render()
 {
+	m_pWorldEffectVarible->SetMatrix((float*)&m_World);
+	m_pProjectionEffectVarible->SetMatrix((float*)&m_Projection);
+	m_pViewEffectVarible->SetMatrix((float*)&m_View);
 	//Tells the device what primitive we are going to use
 	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	//Binds the created inputLayout to the input assembler stage
@@ -355,11 +372,13 @@ bool D3D10Renderer::loadEffectFromFile(char* pFilename)
 		OutputDebugStringA((char*)pErrorBuffer->GetBufferPointer());
 			return false;
 	}
+	m_pTempTechnique=m_pTempEffect->GetTechniqueByName("Render");
 	m_pWorldEffectVarible=m_pTempEffect->GetVariableByName("matWorld")->AsMatrix();
 	m_pViewEffectVarible=m_pTempEffect->GetVariableByName("matView")->AsMatrix();
 	m_pProjectionEffectVarible=m_pTempEffect->GetVariableByName("matProjection")->AsMatrix();
 	return true;
 }
+
 
 bool D3D10Renderer::createVertexLayout()
 {
@@ -373,5 +392,10 @@ bool D3D10Renderer::createVertexLayout()
 		return false;
 	}
 	return true;
+}
+
+void D3D10Renderer::positionObject(float x,float y, float z)
+{
+	m_World=XMMatrixTranslation(x,y,z);
 }
 
