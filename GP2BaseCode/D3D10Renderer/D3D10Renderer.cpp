@@ -4,7 +4,8 @@
 #include <D3D10.h>
 #include <D3DX10.h>
 
-struct Vertex{float x,y,z;};
+struct Vertex{float x,y,z;
+				floattu,tv;};
 
 const char basicEffect[]=\
 	"float4 VS( float4 Pos : POSITION ) : SV_POSITION"\
@@ -27,6 +28,8 @@ const char basicEffect[]=\
 const D3D10_INPUT_ELEMENT_DESC VerexLayout[] =
 {
 	{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D10_INPUT_PER_VERTEX_DATA,0},
+	{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,12, D3D10_INPUT_PER_VERTEX_DATA,0 }, 
+
 
 };
 
@@ -278,10 +281,10 @@ bool D3D10Renderer::createBuffer()
 	//Square TRIANGLESTRIP, 4 vertex
 	
 	Vertex verts[]={
-	{-0.5f,0.5f,0.0f},
-	{0.5f,0.5f,0.0f},
-	{-0.5f,-0.5f,0.0f},
-	{0.5f,-0.5f,0.0f}
+	{-0.5f,0.5f,0.0f,0.0f,0.0f},
+	{0.5f,0.5f,0.0f,1.0f,0.0f},
+	{-0.5f,-0.5f,0.0f,0.0f,1.0f},
+	{0.5f,-0.5f,0.0f,1.0f,1.0f}
 	};
 
 	// Hexagon, TRIANGLELIST, 18 vertex
