@@ -32,6 +32,8 @@ bool fullScreen);
 	bool loadEffectFromFile(char* pFilename);
 	void createCamera(XMVECTOR &position,XMVECTOR &focus,XMVECTOR &up,float fov, float aspectRatio,float nearClip,float farClip);
 	void positionObject(float x,float y, float z);
+	bool loadBaseTexture(char* pFilename);
+	bool loadLightTexture(char* pFilename);
 private:
 	//D3D10 stuff
 	ID3D10Device * m_pD3D10Device;
@@ -49,4 +51,9 @@ private:
 	ID3D10EffectMatrixVariable * m_pWorldEffectVarible;
 	ID3D10EffectMatrixVariable * m_pProjectionEffectVarible;
 	ID3D10EffectMatrixVariable * m_pViewEffectVarible;
+	ID3D10ShaderResourceView * m_pBaseTextureMap;
+	ID3D10EffectShaderResourceVariable * m_pBaseTextureEffectVariable;
+	ID3D10ShaderResourceView * m_pLightTextureMap;
+	ID3D10EffectShaderResourceVariable * m_pLightTextureEffectVariable;
+
 };

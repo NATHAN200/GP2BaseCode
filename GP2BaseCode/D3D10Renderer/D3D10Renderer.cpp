@@ -31,7 +31,7 @@ const char basicEffect[]=\
 const D3D10_INPUT_ELEMENT_DESC VerexLayout[] =
 {
 	{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D10_INPUT_PER_VERTEX_DATA,0},
-	{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,12, D3D10_INPUT_PER_VERTEX_DATA,0 }, 
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,12, D3D10_INPUT_PER_VERTEX_DATA,0 }, 
 
 
 };
@@ -76,6 +76,10 @@ D3D10Renderer::~D3D10Renderer()
 		m_pTempEffect->Release();
 	if(m_pTempVertexLayout)
 		m_pTempVertexLayout->Release();
+	if(m_pBaseTextureMap)
+		m_pBaseTextureMap->Release();
+	if(m_pLightTextureMap)
+		m_pLightTextureMap->Release();
 }
 
 
@@ -92,13 +96,17 @@ bool D3D10Renderer::init(void *pWindowHandle,bool fullScreen)
 		return false;
 	if (!createInitialRenderTarget(width,height))
 		return false;
-	if (!loadEffectFromFile("Effects/transform.fx"))
+	if (!loadEffectFromFile("Effects/MultiTexturing.fx"))
+		return false;
+	if (!loadBaseTexture("Textures/face.png"))
+		return false;
+	if (!loadLightTexture("Textures/Spotlight.jpg"))
 		return false;
 	createBuffer();
 	
 	createVertexLayout();
-	
-	XMFLOAT3 cameraPos=XMFLOAT3(0.0f,0.0f,-10.0f);
+
+	XMFLOAT3 cameraPos=XMFLOAT3(0.0f,0.0f,-3.0f);
 	XMFLOAT3 focusPos=XMFLOAT3(0.0f,0.0f,0.0f);
 	XMFLOAT3 up=XMFLOAT3(0.0f,1.0f,0.0f);
 
@@ -258,6 +266,8 @@ void D3D10Renderer::render()
 	m_pWorldEffectVarible->SetMatrix((float*)&m_World);
 	m_pProjectionEffectVarible->SetMatrix((float*)&m_Projection);
 	m_pViewEffectVarible->SetMatrix((float*)&m_View);
+	m_pBaseTextureEffectVariable->SetResource(m_pBaseTextureMap);
+	m_pLightTextureEffectVariable->SetResource(m_pLightTextureMap);
 	//Tells the device what primitive we are going to use
 	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	//Binds the created inputLayout to the input assembler stage
@@ -382,6 +392,8 @@ bool D3D10Renderer::loadEffectFromFile(char* pFilename)
 	m_pWorldEffectVarible=m_pTempEffect->GetVariableByName("matWorld")->AsMatrix();
 	m_pViewEffectVarible=m_pTempEffect->GetVariableByName("matView")->AsMatrix();
 	m_pProjectionEffectVarible=m_pTempEffect->GetVariableByName("matProjection")->AsMatrix();
+	m_pBaseTextureEffectVariable=m_pTempEffect->GetVariableByName("diffuseTexture")->AsShaderResource();
+	m_pLightTextureEffectVariable=m_pTempEffect->GetVariableByName("lightTexture")->AsShaderResource();
 	return true;
 }
 
@@ -405,3 +417,22 @@ void D3D10Renderer::positionObject(float x,float y, float z)
 	m_World=XMMatrixTranslation(x,y,z);
 }
 
+bool D3D10Renderer::loadBaseTexture(char* pFilename)
+{
+	if(FAILED(D3DX10CreateShaderResourceViewFromFileA(m_pD3D10Device,pFilename,NULL,NULL,&m_pBaseTextureMap,NULL)))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool D3D10Renderer::loadLightTexture(char* pFilename)
+{
+	if(FAILED(D3DX10CreateShaderResourceViewFromFileA(m_pD3D10Device,pFilename,NULL,NULL,&m_pLightTextureMap,NULL)))
+	{
+		return false;
+	}
+
+	return true;
+}
