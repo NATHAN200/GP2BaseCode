@@ -4,8 +4,11 @@
 #include <D3D10.h>
 #include <D3DX10.h>
 
-struct Vertex{float x,y,z;
-				floattu,tv;};
+struct Vertex
+{
+	float x,y,z;
+	float tu,tv;
+};
 
 const char basicEffect[]=\
 	"float4 VS( float4 Pos : POSITION ) : SV_POSITION"\
