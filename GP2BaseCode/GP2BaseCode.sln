@@ -14,6 +14,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Renderer", "Renderer\Render
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D3D10Renderer", "D3D10Renderer\D3D10Renderer.vcxproj", "{04AC46B9-7C7C-4C8F-9A28-11E3B31A7A22}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", "{6DFE1E86-0A3B-4D42-92B0-74B3AE0684F2}"
+	ProjectSection(SolutionItems) = preProject
+		Debug\Effects\transform.fx = Debug\Effects\transform.fx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32

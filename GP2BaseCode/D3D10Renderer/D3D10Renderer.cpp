@@ -5,6 +5,7 @@
 #include <D3DX10.h>
 
 struct Vertex{float x,y,z;};
+
 const char basicEffect[]=\
 	"float4 VS( float4 Pos : POSITION ) : SV_POSITION"\
 	"{"\
@@ -41,6 +42,9 @@ D3D10Renderer::D3D10Renderer()
 	m_pTempTechnique=NULL;
 	m_pTempBuffer=NULL;
 	m_pTempVertexLayout=NULL;
+	m_View = XMMatrixIdentity();
+	m_Projection=XMMatrixIdentity();
+	m_World =XMMatrixIdentity();
 }
 
 //Deconstructor
@@ -82,7 +86,7 @@ bool D3D10Renderer::init(void *pWindowHandle,bool fullScreen)
 		return false;
 	if (!createInitialRenderTarget(width,height))
 		return false;
-	loadEffectFromMemory(basicEffect);
+	loadEffectFromFile("Effects/transform.fx");
 	createBuffer();
 	
 	createVertexLayout();
@@ -232,7 +236,7 @@ void D3D10Renderer::present()
 void D3D10Renderer::render()
 {
 	//Tells the device what primitive we are going to use
-	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	//Binds the created inputLayout to the input assembler stage
 	m_pD3D10Device->IASetInputLayout(m_pTempVertexLayout);
 
@@ -249,22 +253,22 @@ void D3D10Renderer::render()
 		ID3D10EffectPass *pCurrentPass=m_pTempTechnique->GetPassByIndex(i);
 		pCurrentPass->Apply(0);
 		//Draws the primitives
-		m_pD3D10Device->Draw(18,0);
+		m_pD3D10Device->Draw(4,0);
 	}
 }
 bool D3D10Renderer::createBuffer()
 {
 	//Square TRIANGLESTRIP, 4 vertex
-	/*
+	
 	Vertex verts[]={
 	{-0.5f,0.5f,0.0f},
 	{0.5f,0.5f,0.0f},
 	{-0.5f,-0.5f,0.0f},
-	{0.5f,-0.5f,0.0f},
-	};*/
+	{0.5f,-0.5f,0.0f}
+	};
 
 	// Hexagon, TRIANGLELIST, 18 vertex
-	Vertex verts[]={
+	/*Vertex verts[]={
 	{0.0f,0.0f,0.0f},
 	{0.25f,0.5f,0.0f},
 	{0.5f,0.0f,0.0f},
@@ -283,7 +287,7 @@ bool D3D10Renderer::createBuffer()
 	{0.0f,0.0f,0.0f},
 	{-0.25f,0.5f,0.0f},
 	{0.25f,0.5f,0.0f},
-	};
+	};*/
 	
 	
 	// Hexagon TRIANGLESTRIP, 9 vertex
@@ -303,7 +307,7 @@ bool D3D10Renderer::createBuffer()
 
 	D3D10_BUFFER_DESC bd;
 	bd.Usage = D3D10_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof( Vertex) * 18;
+	bd.ByteWidth = sizeof( Vertex) * 4;
 	bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
@@ -335,6 +339,25 @@ bool D3D10Renderer::loadEffectFromMemory(const char* pMem)
 	}
 
 	m_pTempTechnique=m_pTempEffect->GetTechniqueByName("Render");
+	return true;
+}
+
+bool D3D10Renderer::loadEffectFromFile(char* pFilename)
+{
+		DWORD dwShaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
+	#if defined( DEBUG ) || defined( _DEBUG )
+		dwShaderFlags |= D3D10_SHADER_DEBUG;
+	#endif
+	
+	ID3D10Blob * pErrorBuffer=NULL;
+	if(FAILED(D3DX10CreateEffectFromFileA(pFilename,NULL,NULL,"fx_4_0",dwShaderFlags,0,m_pD3D10Device,NULL,NULL,&m_pTempEffect,&pErrorBuffer,NULL)))
+	{
+		OutputDebugStringA((char*)pErrorBuffer->GetBufferPointer());
+			return false;
+	}
+	m_pWorldEffectVarible=m_pTempEffect->GetVariableByName("matWorld")->AsMatrix();
+	m_pViewEffectVarible=m_pTempEffect->GetVariableByName("matView")->AsMatrix();
+	m_pProjectionEffectVarible=m_pTempEffect->GetVariableByName("matProjection")->AsMatrix();
 	return true;
 }
 
