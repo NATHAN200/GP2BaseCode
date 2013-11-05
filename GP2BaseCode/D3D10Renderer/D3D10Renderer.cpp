@@ -8,6 +8,7 @@ struct Vertex
 {
 	float x,y,z;
 	float tu,tv;
+	float u,v,w;
 };
 
 const char basicEffect[]=\
@@ -31,9 +32,8 @@ const char basicEffect[]=\
 const D3D10_INPUT_ELEMENT_DESC VerexLayout[] =
 {
 	{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D10_INPUT_PER_VERTEX_DATA,0},
-	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,12, D3D10_INPUT_PER_VERTEX_DATA,0 }, 
-
-
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,12, D3D10_INPUT_PER_VERTEX_DATA,0 },
+	{ "NORMAL", 0, DXGI_FORMAT_R32G32_FLOAT, 0,20, D3D10_INPUT_PER_VERTEX_DATA,0 },
 };
 
 //Constructor
@@ -47,6 +47,7 @@ D3D10Renderer::D3D10Renderer()
 	m_pTempEffect=NULL;
 	m_pTempTechnique=NULL;
 	m_pTempBuffer=NULL;
+	m_pTempIndexBuffer=NULL;
 	m_pTempVertexLayout=NULL;
 	m_View = XMMatrixIdentity();
 	m_Projection=XMMatrixIdentity();
@@ -72,6 +73,8 @@ D3D10Renderer::~D3D10Renderer()
 		m_pD3D10Device->Release();
 	if(m_pTempBuffer)
 		m_pTempBuffer->Release();
+	if(m_pTempIndexBuffer)
+		m_pTempIndexBuffer->Release();
 	if(m_pTempEffect)
 		m_pTempEffect->Release();
 	if(m_pTempVertexLayout)
@@ -96,17 +99,17 @@ bool D3D10Renderer::init(void *pWindowHandle,bool fullScreen)
 		return false;
 	if (!createInitialRenderTarget(width,height))
 		return false;
-	if (!loadEffectFromFile("Effects/MultiTexturing.fx"))
+	if (!loadEffectFromFile("Effect/diffuse.fx"))
 		return false;
-	if (!loadBaseTexture("Textures/face.png"))
-		return false;
-	if (!loadLightTexture("Textures/Spotlight.jpg"))
-		return false;
+	//if (!loadBaseTexture("Textures/face.png"))
+		//return false;
+	//if (!loadLightTexture("Textures/Spotlight.jpg"))
+		//return false;
 	createBuffer();
 	
 	createVertexLayout();
 
-	XMFLOAT3 cameraPos=XMFLOAT3(0.0f,0.0f,-3.0f);
+	XMFLOAT3 cameraPos=XMFLOAT3(0.0f,3.0f,-5.0f);
 	XMFLOAT3 focusPos=XMFLOAT3(0.0f,0.0f,0.0f);
 	XMFLOAT3 up=XMFLOAT3(0.0f,1.0f,0.0f);
 
@@ -277,6 +280,8 @@ void D3D10Renderer::render()
 	UINT offset = 0;
 	//Binds the vertex buffer to the input assembler stage
 	m_pD3D10Device->IASetVertexBuffers(0,1,&m_pTempBuffer,&stride,&offset);
+	m_pD3D10Device->IASetIndexBuffer(m_pTempIndexBuffer,DXGI_FORMAT_R32_UINT,0);
+
 
 	D3D10_TECHNIQUE_DESC techniqueDesc;
 	m_pTempTechnique->GetDesc(&techniqueDesc);
@@ -286,7 +291,7 @@ void D3D10Renderer::render()
 		ID3D10EffectPass *pCurrentPass=m_pTempTechnique->GetPassByIndex(i);
 		pCurrentPass->Apply(0);
 		//Draws the primitives
-		m_pD3D10Device->Draw(4,0);
+		m_pD3D10Device->DrawIndexed(36,0,0);
 	}
 }
 bool D3D10Renderer::createBuffer()
@@ -294,10 +299,14 @@ bool D3D10Renderer::createBuffer()
 	//Square TRIANGLESTRIP, 4 vertex
 	
 	Vertex verts[]={
-	{-0.5f,0.5f,0.0f,0.0f,0.0f},
-	{0.5f,0.5f,0.0f,1.0f,0.0f},
-	{-0.5f,-0.5f,0.0f,0.0f,1.0f},
-	{0.5f,-0.5f,0.0f,1.0f,1.0f}
+	{-0.5f,-0.5f,1.0f,0.0f,1.0f,0.0f,0.5f,0.5f},
+	{-0.5f,0.5f,1.0f,0.0f,0.0f,0.0f,0.5f,0.5f},
+	{0.5f,-0.5f,1.0f,1.0f,1.0f,0.0f,-0.5f,0.5f},
+	{0.5f,0.5f,1.0f,1.0f,0.0f,0.0f,-0.5f,0.5f},
+	{0.5f,-0.5f,-1.0f,-1.0f,0.0f,0.0f,0.5f,-0.5f},
+	{0.5f,0.5f,-1.0f,0.0f,0.0f,0.0f,0.5f,-0.5f},
+	{-0.5f,-0.5f,-1.0f,1.0f,1.0f,0.0f,-0.5f,-0.5f},
+	{-0.5f,0.5f,-1.0f,1.0f,0.0f,0.0f,-0.5f,-0.5f}
 	};
 
 	// Hexagon, TRIANGLELIST, 18 vertex
@@ -340,7 +349,7 @@ bool D3D10Renderer::createBuffer()
 
 	D3D10_BUFFER_DESC bd;
 	bd.Usage = D3D10_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof( Vertex) * 4;
+	bd.ByteWidth = sizeof( Vertex) * 8;
 	bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
@@ -353,6 +362,30 @@ bool D3D10Renderer::createBuffer()
 		OutputDebugStringA("Can't create buffer");
 		
 	}
+	int indices[] = {
+		0,1,2,1,3,2,	//Front
+		4,5,6,5,7,6,	//Back
+		6,7,0,7,1,0,	//
+		2,3,4,3,5,4,	//
+		1,7,3,7,5,3,	//
+		6,0,4,0,2,4		//
+	};
+	D3D10_BUFFER_DESC indexBD;
+	indexBD.Usage = D3D10_USAGE_DEFAULT;
+	indexBD.ByteWidth = sizeof(int) * 36;
+	indexBD.BindFlags = D3D10_BIND_INDEX_BUFFER;
+	indexBD.CPUAccessFlags = 0;
+	indexBD.MiscFlags = 0;
+
+	D3D10_SUBRESOURCE_DATA InitlBData;
+	InitlBData.pSysMem = &indices;
+
+	if (FAILED(m_pD3D10Device->CreateBuffer(&indexBD,&InitlBData,&m_pTempIndexBuffer)))
+	{
+		OutputDebugStringA("Can't create buffer");
+		
+	}
+
 	return true;
 }
 
