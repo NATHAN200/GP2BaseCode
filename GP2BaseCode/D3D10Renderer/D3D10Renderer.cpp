@@ -7,7 +7,7 @@
 struct Vertex
 {
 	float x,y,z;
-	float tu,tv;
+	//float tu,tv;
 	float u,v,w;
 };
 
@@ -32,8 +32,8 @@ const char basicEffect[]=\
 const D3D10_INPUT_ELEMENT_DESC VerexLayout[] =
 {
 	{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D10_INPUT_PER_VERTEX_DATA,0},
-	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,12, D3D10_INPUT_PER_VERTEX_DATA,0 },
-	{ "NORMAL", 0, DXGI_FORMAT_R32G32_FLOAT, 0,20, D3D10_INPUT_PER_VERTEX_DATA,0 },
+	//{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,12, D3D10_INPUT_PER_VERTEX_DATA,0 },
+	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,12, D3D10_INPUT_PER_VERTEX_DATA,0 },
 };
 
 //Constructor
@@ -94,12 +94,18 @@ bool D3D10Renderer::init(void *pWindowHandle,bool fullScreen)
 
 	UINT width=windowRect.right-windowRect.left;
 	UINT height=windowRect.bottom-windowRect.top;
-
+	diffuseLightColour = XMFLOAT4(1.0f, 0.883f, 0.534f, 0.0f);
+	ambientLightColour = XMFLOAT4(0.534f, 1.0f, 0.666f, 1.0f);
+	diffuseMaterial = XMFLOAT4(1.0f, 0.35f, 0.317f, 1.0f);
+	ambientMaterial =XMFLOAT4(1.0f, 0.151f, 0.26f, 1.0f);
+	specularMaterial = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
+	specularLightColour = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
+	LightDir = XMFLOAT3(10.0f,-4.0f,-5.0f);
 	if (!createDevice(window,width,height,fullScreen))
 		return false;
 	if (!createInitialRenderTarget(width,height))
 		return false;
-	if (!loadEffectFromFile("Effect/diffuse.fx"))
+	if (!loadEffectFromFile("Effects/specular.fx"))
 		return false;
 	//if (!loadBaseTexture("Textures/face.png"))
 		//return false;
@@ -110,11 +116,12 @@ bool D3D10Renderer::init(void *pWindowHandle,bool fullScreen)
 	createVertexLayout();
 
 	XMFLOAT3 cameraPos=XMFLOAT3(0.0f,3.0f,-5.0f);
+	cameraPosition = cameraPos;
 	XMFLOAT3 focusPos=XMFLOAT3(0.0f,0.0f,0.0f);
 	XMFLOAT3 up=XMFLOAT3(0.0f,1.0f,0.0f);
 
 	createCamera(XMLoadFloat3(&cameraPos),XMLoadFloat3(&focusPos),XMLoadFloat3(&up),XM_PI/4,(float)width/(float)height,0.1f,100.0f);
-	positionObject(1.0f,1.0f,1.0f);
+	positionObject(1.0f,1.0f,2.0f);
 	return true;
 }
 
@@ -269,8 +276,16 @@ void D3D10Renderer::render()
 	m_pWorldEffectVarible->SetMatrix((float*)&m_World);
 	m_pProjectionEffectVarible->SetMatrix((float*)&m_Projection);
 	m_pViewEffectVarible->SetMatrix((float*)&m_View);
-	m_pBaseTextureEffectVariable->SetResource(m_pBaseTextureMap);
-	m_pLightTextureEffectVariable->SetResource(m_pLightTextureMap);
+//	m_pBaseTextureEffectVariable->SetResource(m_pBaseTextureMap);
+//	m_pLightTextureEffectVariable->SetResource(m_pLightTextureMap);
+	m_pLightDirection->SetFloatVector((float*)&LightDir);
+	m_pdiffuseLightColour->SetFloatVector((float*)&diffuseLightColour);
+	m_pdiffuseMaterial->SetFloatVector((float*)&diffuseMaterial);
+	m_pambientLightColour->SetFloatVector((float*)&ambientLightColour);
+	m_pambientMaterial->SetFloatVector((float*)&ambientMaterial);
+	m_pCameraPos->SetFloatVector((float*)&cameraPosition);
+	m_pspecularMaterial->SetFloatVector((float*)&specularMaterial);
+	m_pspecularLightColour->SetFloatVector((float*)&specularLightColour);
 	//Tells the device what primitive we are going to use
 	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	//Binds the created inputLayout to the input assembler stage
@@ -298,7 +313,7 @@ bool D3D10Renderer::createBuffer()
 {
 	//Square TRIANGLESTRIP, 4 vertex
 	
-	Vertex verts[]={
+	/*Vertex verts[]={
 	{-0.5f,-0.5f,1.0f,0.0f,1.0f,0.0f,0.5f,0.5f},
 	{-0.5f,0.5f,1.0f,0.0f,0.0f,0.0f,0.5f,0.5f},
 	{0.5f,-0.5f,1.0f,1.0f,1.0f,0.0f,-0.5f,0.5f},
@@ -307,6 +322,17 @@ bool D3D10Renderer::createBuffer()
 	{0.5f,0.5f,-1.0f,0.0f,0.0f,0.0f,0.5f,-0.5f},
 	{-0.5f,-0.5f,-1.0f,1.0f,1.0f,0.0f,-0.5f,-0.5f},
 	{-0.5f,0.5f,-1.0f,1.0f,0.0f,0.0f,-0.5f,-0.5f}
+	};*/
+
+	Vertex verts[]={
+	{-0.5f,-0.5f,1.0f,0.0f,0.5f,0.5f},
+	{-0.5f,0.5f,1.0f,0.0f,0.5f,0.5f},
+	{0.5f,-0.5f,1.0f,0.0f,-0.5f,0.5f},
+	{0.5f,0.5f,1.0f,0.0f,-0.5f,0.5f},
+	{0.5f,-0.5f,-1.0f,0.0f,0.5f,-0.5f},
+	{0.5f,0.5f,-1.0f,0.0f,0.5f,-0.5f},
+	{-0.5f,-0.5f,-1.0f,0.0f,-0.5f,-0.5f},
+	{-0.5f,0.5f,-1.0f,0.0f,-0.5f,-0.5f}
 	};
 
 	// Hexagon, TRIANGLELIST, 18 vertex
@@ -425,8 +451,16 @@ bool D3D10Renderer::loadEffectFromFile(char* pFilename)
 	m_pWorldEffectVarible=m_pTempEffect->GetVariableByName("matWorld")->AsMatrix();
 	m_pViewEffectVarible=m_pTempEffect->GetVariableByName("matView")->AsMatrix();
 	m_pProjectionEffectVarible=m_pTempEffect->GetVariableByName("matProjection")->AsMatrix();
-	m_pBaseTextureEffectVariable=m_pTempEffect->GetVariableByName("diffuseTexture")->AsShaderResource();
-	m_pLightTextureEffectVariable=m_pTempEffect->GetVariableByName("lightTexture")->AsShaderResource();
+	//m_pBaseTextureEffectVariable=m_pTempEffect->GetVariableByName("diffuseTexture")->AsShaderResource();
+	//m_pLightTextureEffectVariable=m_pTempEffect->GetVariableByName("lightTexture")->AsShaderResource();
+	m_pLightDirection=m_pTempEffect->GetVariableByName("lightDirection")->AsVector();
+	m_pdiffuseLightColour=m_pTempEffect->GetVariableByName("diffuseLightColour")->AsVector();
+	m_pdiffuseMaterial=m_pTempEffect->GetVariableByName("diffuseMaterial")->AsVector();
+	m_pambientLightColour=m_pTempEffect->GetVariableByName("ambientLightColour")->AsVector();
+	m_pambientMaterial=m_pTempEffect->GetVariableByName("ambientMaterial")->AsVector();
+	m_pCameraPos=m_pTempEffect->GetVariableByName("CameraPosition")->AsVector();
+	m_pspecularLightColour=m_pTempEffect->GetVariableByName("specularLight")->AsVector();
+	m_pspecularMaterial=m_pTempEffect->GetVariableByName("specularMaterial")->AsVector();
 	return true;
 }
 

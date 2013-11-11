@@ -56,5 +56,21 @@ private:
 	ID3D10EffectShaderResourceVariable * m_pBaseTextureEffectVariable;
 	ID3D10ShaderResourceView * m_pLightTextureMap;
 	ID3D10EffectShaderResourceVariable * m_pLightTextureEffectVariable;
+	ID3D10EffectVectorVariable * m_pdiffuseLightColour;
+	ID3D10EffectVectorVariable * m_pdiffuseMaterial;
+	ID3D10EffectVectorVariable * m_pLightDirection;
+	ID3D10EffectVectorVariable * m_pambientLightColour;
+	ID3D10EffectVectorVariable * m_pambientMaterial;
+	ID3D10EffectVectorVariable * m_pCameraPos;
+	ID3D10EffectVectorVariable * m_pspecularLightColour;
+	ID3D10EffectVectorVariable * m_pspecularMaterial;
+	XMFLOAT4 diffuseLightColour;
+	XMFLOAT4 ambientLightColour;
+	XMFLOAT4 diffuseMaterial;
+	XMFLOAT4 ambientMaterial;
+	XMFLOAT3 LightDir;
+	XMFLOAT3 cameraPosition;
+	XMFLOAT4 specularLightColour;
+	XMFLOAT4 specularMaterial;
 
 };
