@@ -94,7 +94,7 @@ bool D3D10Renderer::init(void *pWindowHandle,bool fullScreen)
 
 	UINT width=windowRect.right-windowRect.left;
 	UINT height=windowRect.bottom-windowRect.top;
-	diffuseLightColour = XMFLOAT4(1.0f, 0.883f, 0.534f, 0.0f);
+	diffuseLightColour = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
 	ambientLightColour = XMFLOAT4(0.534f, 1.0f, 0.666f, 1.0f);
 	diffuseMaterial = XMFLOAT4(1.0f, 0.35f, 0.317f, 1.0f);
 	ambientMaterial =XMFLOAT4(1.0f, 0.151f, 0.26f, 1.0f);
@@ -459,7 +459,7 @@ bool D3D10Renderer::loadEffectFromFile(char* pFilename)
 	m_pambientLightColour=m_pTempEffect->GetVariableByName("ambientLightColour")->AsVector();
 	m_pambientMaterial=m_pTempEffect->GetVariableByName("ambientMaterial")->AsVector();
 	m_pCameraPos=m_pTempEffect->GetVariableByName("CameraPosition")->AsVector();
-	m_pspecularLightColour=m_pTempEffect->GetVariableByName("specularLight")->AsVector();
+	m_pspecularLightColour=m_pTempEffect->GetVariableByName("specularLightColour")->AsVector();
 	m_pspecularMaterial=m_pTempEffect->GetVariableByName("specularMaterial")->AsVector();
 	return true;
 }
@@ -503,3 +503,4 @@ bool D3D10Renderer::loadLightTexture(char* pFilename)
 
 	return true;
 }
+																												
